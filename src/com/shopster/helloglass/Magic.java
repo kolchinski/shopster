@@ -30,7 +30,7 @@ public class Magic extends Activity {
 	private static final int REQUEST_CODE = 1234;
 	private Card card1;
 	private GestureDetector mGestureDetector;
-	private static final int ITEMS_PER_PAGE = 2;	
+	private static final int ITEMS_PER_PAGE = 6;	
 	
 	
   class ShoppingList {
@@ -95,6 +95,8 @@ public class Magic extends Activity {
 
     card1.setText("Tap to create list"); // Main text area
     card1.setFootnote("Shopping lists");
+    //card1.setImageLayout(Card.ImageLayout.FULL);
+    //card1.addImage(R.drawable.cart);
 
     // Alert user if no recognition service is present.
     PackageManager pm = getPackageManager();
