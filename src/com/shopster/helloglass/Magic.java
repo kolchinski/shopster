@@ -25,15 +25,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Magic extends Activity {
+  class ShoppingList {
+	  public List<String> shoppingList = new ArrayList<String>();
+	  public int curPage = 0;
+  }
 
   private static final int REQUEST_CODE = 1234;
   private Card card1;
   private GestureDetector mGestureDetector;
+  private static final int ITEMS_PER_PAGE = 2;
   
   private List<String> shoppingList = new ArrayList<String>();
+  private int curPage = 0; //which page of the list we're on
+  
+  private int numPages() {
+	  if (shoppingList.size() == 0) return 1;
+	  return (shoppingList.size() - 1) / ITEMS_PER_PAGE + 1;
+  }
   
   private String listString() {
-	  String allItems = "";
+	  return textForPage(curPage);
+	  /*String allItems = "";
 	  boolean firstItem = true;
 	  for (String temp : shoppingList) {
 		  if (!firstItem) {
@@ -42,7 +54,22 @@ public class Magic extends Activity {
 		  allItems += temp;
 		  firstItem = false;  
 	  }
-	  return allItems;
+	  return allItems;*/
+  }
+  
+  private String textForPage(int pageNum) {
+	  String pageString = "";
+	  boolean firstItem = true;
+	  int firstIndex = pageNum * ITEMS_PER_PAGE;
+	  for (int i = firstIndex; i < firstIndex + ITEMS_PER_PAGE; i++) {
+		  if (i >= shoppingList.size()) break;
+		  if (!firstItem) {
+			  pageString += "\n";
+		  }
+		  pageString += shoppingList.get(i);
+		  firstItem = false; 
+	  }
+	  return pageString;
   }
 
 	@Override
@@ -94,6 +121,24 @@ public class Magic extends Activity {
           setContentView(card1View);
           startVoiceRecognitionActivity(false);
           return true;
+        }
+        else if (gesture == Gesture.SWIPE_LEFT) {
+        	curPage = (curPage - 1 + numPages()) % numPages();
+        	card1.setText(listString()); // Main text area
+            card1.setFootnote("Shopping list (page " + Integer.toString(curPage + 1) + "/" + Integer.toString(numPages()) + ")");
+            View card1View = card1.toView();
+            // Display the card we just created
+            setContentView(card1View);
+            return true;
+        }
+        else if (gesture == Gesture.SWIPE_RIGHT) {
+        	curPage = (curPage + 1) % numPages();
+        	card1.setText(listString()); // Main text area
+            card1.setFootnote("Shopping list (page " + Integer.toString(curPage + 1) + "/" + Integer.toString(numPages()) + ")");
+            View card1View = card1.toView();
+            // Display the card we just created
+            setContentView(card1View);
+            return true;
         }
         return false;
       }
@@ -162,6 +207,8 @@ public class Magic extends Activity {
     				  shoppingList.remove(temp);
     		  }*/
     		  shoppingList.remove(item);
+    		  //Make sure we don't stay on an empty page
+    		  if (curPage >= numPages()) curPage = numPages() - 1;
     		  validInput = true;
     	  }
     	  else {
@@ -172,8 +219,8 @@ public class Magic extends Activity {
       
       
       card1.setText(listString()); // Main text area
+      card1.setFootnote("Shopping list (page " + Integer.toString(curPage + 1) + "/" + Integer.toString(numPages()) + ")");
       View card1View = card1.toView();
-      card1.setFootnote("Shopping list");
       // Display the card we just created
       setContentView(card1View);
     }
